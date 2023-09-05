@@ -11,10 +11,12 @@ Tech stack
 - Vite
 - React
 - Typescript
+- React Router
 - Firebase (quick to get started and host, persistent data made easy)
     - Realtime Database because it's tried and true & this is not a mobile application
     - Drop in UI library for speed of development
     - Longer term we could implement (offline persistence)[https://firebase.google.com/docs/database/web/offline-capabilities]
+- Material UI for the UI toolkit (fast, standard, familiar aesthetic)
 
 ## Notes
 - Runs on port `8000` locally.
@@ -27,3 +29,4 @@ Tech stack
 - A/B testing
 - Ability to manage multiple builds at once (support users having multiple open build sessions at once)
 - Enable more authentication providers (built in to Firebase, easy to add. Docs available [here](https://firebase.google.com/docs/auth/web/firebaseui))
+- Create an error page for routes not found (`errorElement: <ErrorPage />,`)

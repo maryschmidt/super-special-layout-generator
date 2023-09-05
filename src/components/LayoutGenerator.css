@@ -1,0 +1,31 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 100px);
+  grid-template-rows: repeat(1fr);
+  flex: 1;
+  grid-auto-flow: row dense;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.grid div {
+    background-color: #7d7d7d;
+    padding: 30px;
+    border: 1px solid #fff;
+}
+
+.ten {
+  grid-column: auto/span 1;
+}
+
+.twenty {
+  grid-column: auto/span 2;
+}
+
+.thirty {
+  grid-column: auto/span 3;
+}
+
+.forty {
+  grid-column: auto/span 4;
+}
