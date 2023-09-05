@@ -1,9 +1,4 @@
-import {
-  useState,
-  useMemo,
-  useCallback,
-  ChangeEvent,
-} from "react";
+import { useState, useMemo, useCallback, ChangeEvent } from "react";
 import * as Auth from "firebase/auth";
 import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
@@ -64,24 +59,30 @@ const LayoutGenerator = () => {
     height: 0,
   });
 
-  const gridRef = useCallback((node: HTMLDivElement | null) => {
-    if (node) {
-      setLayoutDimensions({
-        width: node.clientWidth / 10,
-        height: node.clientHeight / 10,
-      });
-    }
-  }, []);
-
-  const currentUser = Auth.getAuth().currentUser;
+  const totalEleCount = useMemo(
+    () => Object.values(eles).reduce((acc, cur) => acc + cur, 0),
+    [eles]
+  );
 
   const transformerCount = useMemo(() => {
-    const totalEleCount = Object.values(eles).reduce(
-      (acc, cur) => acc + cur,
-      0
-    );
     return Math.floor(totalEleCount / 2);
-  }, [eles]);
+  }, [totalEleCount]);
+
+  const gridRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node) {
+        if (totalEleCount) {
+          setLayoutDimensions({
+            width: node.offsetWidth / 10,
+            height: (node.scrollTop + node.scrollHeight) / 10,
+          });
+        } else {
+          setLayoutDimensions({ width: 0, height: 0 });
+        }
+      }
+    },
+    [totalEleCount]
+  );
 
   const handleInputChange = useCallback(
     (fieldName: keyof typeof EleNames) =>
@@ -94,6 +95,8 @@ const LayoutGenerator = () => {
       },
     [setEles]
   );
+
+  const currentUser = Auth.getAuth().currentUser;
 
   return (
     <>
@@ -112,13 +115,18 @@ const LayoutGenerator = () => {
       </AppBar>
       <Container
         maxWidth="xl"
-        sx={{ display: "flex", flexDirection: "column", flex: 1 }}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          overflow: "hidden",
+        }}
       >
         <Box display="flex" justifyContent="flex-end">
           <Button>Save</Button>
         </Box>
-        <Box display="flex">
-          <Card sx={{ marginRight: 1, flex: 1 }}>
+        <Box display="flex" padding={2} overflow="hidden">
+          <Card sx={{ marginRight: 2, flex: 1 }}>
             <CardContent>
               <Typography variant="h5" component="div">
                 Build of Materials
@@ -133,6 +141,12 @@ const LayoutGenerator = () => {
                   label="MegapackXL"
                   value={eles[EleNames.megapackxl]}
                   onChange={handleInputChange("megapackxl")}
+                  InputProps={{
+                    inputProps: {
+                      max: 100,
+                      min: 0,
+                    },
+                  }}
                 />
                 <TextField
                   type="number"
@@ -143,6 +157,12 @@ const LayoutGenerator = () => {
                   label="Megapack2"
                   value={eles[EleNames.megapack2]}
                   onChange={handleInputChange("megapack2")}
+                  InputProps={{
+                    inputProps: {
+                      max: 100,
+                      min: 0,
+                    },
+                  }}
                 />
                 <TextField
                   type="number"
@@ -153,6 +173,12 @@ const LayoutGenerator = () => {
                   label="Megapack"
                   value={eles[EleNames.megapack]}
                   onChange={handleInputChange("megapack")}
+                  InputProps={{
+                    inputProps: {
+                      max: 100,
+                      min: 0,
+                    },
+                  }}
                 />
                 <TextField
                   type="number"
@@ -163,6 +189,12 @@ const LayoutGenerator = () => {
                   label="Powerpack"
                   value={eles[EleNames.powerpack]}
                   onChange={handleInputChange("powerpack")}
+                  InputProps={{
+                    inputProps: {
+                      max: 100,
+                      min: 0,
+                    },
+                  }}
                 />
                 <TextField
                   type="number"
