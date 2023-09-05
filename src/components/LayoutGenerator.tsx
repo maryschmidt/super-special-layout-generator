@@ -65,7 +65,7 @@ const LayoutGenerator = () => {
   );
 
   const transformerCount = useMemo(() => {
-    return Math.floor(totalEleCount / 2);
+    return Math.ceil(totalEleCount / 2);
   }, [totalEleCount]);
 
   const gridRef = useCallback(
