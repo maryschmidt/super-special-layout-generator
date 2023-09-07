@@ -1,0 +1,10 @@
+body {
+    display: flex;
+    height: 100vh;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}

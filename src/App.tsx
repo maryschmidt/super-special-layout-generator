@@ -1,35 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import firebase from "firebase/compat/app";
+import * as firebaseui from "firebaseui";
+import "firebaseui/dist/firebaseui.css";
+import { useEffect } from "react";
+
+// Initialize the FirebaseUI Widget using Firebase.
+const ui = new firebaseui.auth.AuthUI(firebase.auth());
 
 function App() {
-  const [count, setCount] = useState(0)
+  // This function needs to be called after the div has been rendered
+  useEffect(() => {
+    ui.start("#firebaseui-auth-container", {
+      signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID],
+      signInSuccessUrl: "/layout",
+    });
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Container
+      sx={{
+        display: "flex",
+        minWidth: "420px",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Typography variant="h1">Super Special Layout Generator</Typography>
+      <div id="firebaseui-auth-container" />
+    </Container>
+  );
 }
 
-export default App
+export default App;
