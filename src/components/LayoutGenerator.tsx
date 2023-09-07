@@ -1,16 +1,19 @@
-import { useState, useMemo, useCallback, ChangeEvent } from "react";
-import * as Auth from "firebase/auth";
+import { useState, useMemo, useCallback, useEffect, ChangeEvent } from "react";
 import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Container from "@mui/material/Container";
+import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import SaveIcon from "@mui/icons-material/Save";
 import "./LayoutGenerator.css";
+import { db } from "../../firebase-config";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
 
 const mapEleToCssClass = (eleName: keyof typeof EleNames): string => {
   if (eleName === "megapackxl") {
@@ -47,13 +50,28 @@ type EleCounts = {
   [s in keyof typeof EleNames]: number;
 };
 
+const defaultEles = {
+  megapackxl: 0,
+  megapack2: 0,
+  megapack: 0,
+  powerpack: 0,
+};
+
 const LayoutGenerator = () => {
-  const [eles, setEles] = useState<EleCounts>({
-    megapackxl: 0,
-    megapack2: 0,
-    megapack: 0,
-    powerpack: 0,
-  });
+  const [currentUser, setCurrentUser] = useState<firebase.User | null>(null);
+
+  useEffect(() => {
+    const auth = firebase.auth();
+    const unsub = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setCurrentUser(user);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  const [eles, setEles] = useState<EleCounts>(defaultEles);
+
   const [layoutDimensions, setLayoutDimensions] = useState<LayoutDimensions>({
     width: 0,
     height: 0,
@@ -73,7 +91,7 @@ const LayoutGenerator = () => {
       if (node) {
         if (totalEleCount) {
           setLayoutDimensions({
-            width: node.offsetWidth / 10,
+            width: node.clientWidth / 10,
             height: (node.scrollTop + node.scrollHeight) / 10,
           });
         } else {
@@ -96,7 +114,29 @@ const LayoutGenerator = () => {
     [setEles]
   );
 
-  const currentUser = Auth.getAuth().currentUser;
+  const handleSave = useCallback(() => {
+    if (currentUser) {
+      db.ref(`users/${currentUser.uid}`)
+        .set(eles)
+        .catch(() => console.log("save failed"));
+    }
+  }, [eles, currentUser]);
+
+  // TODO Add UX for error handling
+  useEffect(() => {
+    if (currentUser) {
+      db.ref(`users/${currentUser.uid}`)
+        .once("value")
+        .then((snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            console.log("AAA", data);
+            setEles(data);
+          }
+        })
+        .catch(() => "read failed");
+    }
+  }, [currentUser, setEles]);
 
   return (
     <>
@@ -122,15 +162,22 @@ const LayoutGenerator = () => {
           overflow: "hidden",
         }}
       >
-        <Box display="flex" justifyContent="flex-end">
-          <Button>Save</Button>
-        </Box>
         <Box display="flex" padding={2} overflow="hidden">
-          <Card sx={{ marginRight: 2, flex: 1 }}>
+          <Card sx={{ marginRight: 2, flex: 1, alignSelf: "flex-start" }}>
             <CardContent>
-              <Typography variant="h5" component="div">
-                Build of Materials
-              </Typography>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="h5" component="div">
+                  Build of Materials
+                </Typography>
+                <IconButton color="primary" onClick={handleSave}>
+                  <SaveIcon />
+                </IconButton>
+              </Box>
+
               <Box flex="1">
                 <TextField
                   type="number"
@@ -139,7 +186,7 @@ const LayoutGenerator = () => {
                   id="megapackxl"
                   name="megapackxl"
                   label="MegapackXL"
-                  value={eles[EleNames.megapackxl]}
+                  value={eles.megapackxl}
                   onChange={handleInputChange("megapackxl")}
                   InputProps={{
                     inputProps: {
@@ -155,7 +202,7 @@ const LayoutGenerator = () => {
                   id="megapack2"
                   name="megapack2"
                   label="Megapack2"
-                  value={eles[EleNames.megapack2]}
+                  value={eles.megapack2}
                   onChange={handleInputChange("megapack2")}
                   InputProps={{
                     inputProps: {
@@ -171,7 +218,7 @@ const LayoutGenerator = () => {
                   id="megapack"
                   name="megapack"
                   label="Megapack"
-                  value={eles[EleNames.megapack]}
+                  value={eles.megapack}
                   onChange={handleInputChange("megapack")}
                   InputProps={{
                     inputProps: {
@@ -187,7 +234,7 @@ const LayoutGenerator = () => {
                   id="powerpack"
                   name="powerpack"
                   label="Powerpack"
-                  value={eles[EleNames.powerpack]}
+                  value={eles.powerpack}
                   onChange={handleInputChange("powerpack")}
                   InputProps={{
                     inputProps: {
@@ -226,8 +273,11 @@ const LayoutGenerator = () => {
               for (let i = 0; i < eles[ele]; i++) {
                 devices.push(cssClassName);
               }
-              return devices.map((d, j) => (
-                <div key={`device-${ele}-${j}`} className={d} />
+              for (let j = 0; j < transformerCount; j++) {
+                devices.push("ten")
+              }
+              return devices.map((d, k) => (
+                <div key={`device-${ele}-${k}`} className={d} />
               ));
             })}
           </div>
