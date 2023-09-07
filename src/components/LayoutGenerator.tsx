@@ -130,7 +130,6 @@ const LayoutGenerator = () => {
         .then((snapshot) => {
           const data = snapshot.val();
           if (data) {
-            console.log("AAA", data);
             setEles(data);
           }
         })
