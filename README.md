@@ -29,7 +29,9 @@ Tech stack
 - MUI `Box` component is not performant but it sure is quick to prototype with
 
 ## Future Work
-- Refactor code (seriously...)
+- Refactor code (seriously... move the viz into its own area of concern for one thing)
+- Visuals in general need a lot of work
+- Success/error messaging is not present at the moment (no indication that save succeeded for example)
 - Take control of auth UX
 - Analytics and telemetry
 - A/B testing
