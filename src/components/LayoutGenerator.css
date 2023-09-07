@@ -19,10 +19,6 @@
   grid-column: auto/span 1;
 }
 
-.twenty {
-  grid-column: auto/span 2;
-}
-
 .thirty {
   grid-column: auto/span 3;
 }

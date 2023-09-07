@@ -5,6 +5,11 @@ This is a tool to help folks generate layouts for given battery configurations. 
 3. Save and resume their sessions across cache clears (thus, we aren't using localstorage)
 
 ## Design Decisions
+The goal was to make this as simple as possible as a tech demo, but also provide something with potential to scale.
+
+For the layout, this led to a simple input on the left, output viz on the right situation.
+
+The calculated results from the input are co-located with them.
 
 ## Architecture
 Tech stack
@@ -20,13 +25,15 @@ Tech stack
 
 ## Notes
 - Runs on port `8000` locally.
-- Authentication and persistence are handled through Firebase
+- Authentication and persistence are handled through Firebase Realtime Database
+- MUI `Box` component is not performant but it sure is quick to prototype with
 
-## TODO
-- Security for the data -- this should be defined in `database.rules.json`.
+## Future Work
+- Refactor code (seriously...)
 - Take control of auth UX
 - Analytics and telemetry
 - A/B testing
 - Ability to manage multiple builds at once (support users having multiple open build sessions at once)
 - Enable more authentication providers (built in to Firebase, easy to add. Docs available [here](https://firebase.google.com/docs/auth/web/firebaseui))
 - Create an error page for routes not found (`errorElement: <ErrorPage />,`)
+- fix: When the height of the viz is greater than the visible container height, the scrollbar position affects the calculated footprint width

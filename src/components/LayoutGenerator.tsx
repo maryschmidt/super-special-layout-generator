@@ -6,7 +6,6 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Container from "@mui/material/Container";
 import IconButton from "@mui/material/IconButton";
-import TextField from "@mui/material/TextField";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import SaveIcon from "@mui/icons-material/Save";
@@ -14,14 +13,15 @@ import "./LayoutGenerator.css";
 import { db } from "../../firebase-config";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
+import { devices } from "../../devices";
+import Transformers from "./Transformers";
+import FormField from "./FormField";
 
 const mapEleToCssClass = (eleName: keyof typeof EleNames): string => {
   if (eleName === "megapackxl") {
     return "forty";
-  } else if (eleName === "megapack2") {
+  } else if (eleName === "megapack2" || eleName === "megapack") {
     return "thirty";
-  } else if (eleName === "megapack") {
-    return "twenty";
   } else if (eleName === "powerpack") {
     return "ten";
   }
@@ -137,6 +137,26 @@ const LayoutGenerator = () => {
     }
   }, [currentUser, setEles]);
 
+  const [totalCost, totalUsage] = useMemo(() => {
+    const { eleCost, eleUsage } = (
+      Object.keys(eles) as Array<keyof typeof EleNames>
+    ).reduce(
+      (acc, eleName) => {
+        const particularEleCount = eles[eleName];
+        return {
+          eleCost: acc.eleCost + devices[eleName].cost * particularEleCount,
+          eleUsage: acc.eleUsage + devices[eleName].energy * particularEleCount,
+        };
+      },
+      { eleCost: 0, eleUsage: 0 }
+    );
+    const transformerCost = devices.transformer.cost * transformerCount;
+    const transformerUsage = devices.transformer.energy * transformerCount;
+    const c = eleCost + transformerCost;
+    const u = eleUsage + transformerUsage;
+    return [c, u];
+  }, [eles, transformerCount]);
+
   return (
     <>
       <AppBar position="static">
@@ -178,74 +198,35 @@ const LayoutGenerator = () => {
               </Box>
 
               <Box flex="1">
-                <TextField
-                  type="number"
-                  margin="dense"
-                  fullWidth
+                <FormField
                   id="megapackxl"
                   name="megapackxl"
                   label="MegapackXL"
-                  value={eles.megapackxl}
                   onChange={handleInputChange("megapackxl")}
-                  InputProps={{
-                    inputProps: {
-                      max: 100,
-                      min: 0,
-                    },
-                  }}
+                  value={eles.megapackxl}
                 />
-                <TextField
-                  type="number"
-                  margin="dense"
-                  fullWidth
+                <FormField
                   id="megapack2"
                   name="megapack2"
                   label="Megapack2"
-                  value={eles.megapack2}
                   onChange={handleInputChange("megapack2")}
-                  InputProps={{
-                    inputProps: {
-                      max: 100,
-                      min: 0,
-                    },
-                  }}
+                  value={eles.megapack2}
                 />
-                <TextField
-                  type="number"
-                  margin="dense"
-                  fullWidth
+                <FormField
                   id="megapack"
                   name="megapack"
                   label="Megapack"
-                  value={eles.megapack}
                   onChange={handleInputChange("megapack")}
-                  InputProps={{
-                    inputProps: {
-                      max: 100,
-                      min: 0,
-                    },
-                  }}
+                  value={eles.megapack}
                 />
-                <TextField
-                  type="number"
-                  margin="dense"
-                  fullWidth
+                <FormField
                   id="powerpack"
                   name="powerpack"
                   label="Powerpack"
-                  value={eles.powerpack}
                   onChange={handleInputChange("powerpack")}
-                  InputProps={{
-                    inputProps: {
-                      max: 100,
-                      min: 0,
-                    },
-                  }}
+                  value={eles.powerpack}
                 />
-                <TextField
-                  type="number"
-                  margin="dense"
-                  fullWidth
+                <FormField
                   id="transformer"
                   name="transformer"
                   label="Transformer"
@@ -253,7 +234,7 @@ const LayoutGenerator = () => {
                   value={transformerCount}
                 />
               </Box>
-              <Box display="flex">
+              <Box display="flex" flexWrap="wrap">
                 <Box flex="1">
                   <Typography variant="caption">Width</Typography>
                   <Typography variant="body1">{`${layoutDimensions.width} ft`}</Typography>
@@ -261,6 +242,14 @@ const LayoutGenerator = () => {
                 <Box flex="1">
                   <Typography variant="caption">Height</Typography>
                   <Typography variant="body1">{`${layoutDimensions.height} ft`}</Typography>
+                </Box>
+                <Box flex="1">
+                  <Typography variant="caption">Cost</Typography>
+                  <Typography variant="body1">{`$${totalCost}`}</Typography>
+                </Box>
+                <Box flex="1">
+                  <Typography variant="caption">Energy</Typography>
+                  <Typography variant="body1">{`${totalUsage} MWh`}</Typography>
                 </Box>
               </Box>
             </CardContent>
@@ -272,13 +261,11 @@ const LayoutGenerator = () => {
               for (let i = 0; i < eles[ele]; i++) {
                 devices.push(cssClassName);
               }
-              for (let j = 0; j < transformerCount; j++) {
-                devices.push("ten")
-              }
               return devices.map((d, k) => (
-                <div key={`device-${ele}-${k}`} className={d} />
+                <div key={`device-${k}`} className={d} />
               ));
             })}
+            <Transformers count={transformerCount} />
           </div>
         </Box>
       </Container>
