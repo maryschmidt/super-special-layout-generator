@@ -20,11 +20,11 @@ const StyledGrid = styled("div")((props: StyledGridProps) => ({
   gridTemplateColumns: `repeat(${Math.round(
     props.containerWidth / (props.ftToPxConversionFactor * props.baseWidthFt)
   )}, ${props.ftToPxConversionFactor * props.baseWidthFt}px)`,
-  gridAutoRows: `100px`,
+  gridAutoRows: "100px",
   gridAutoFlow: "row dense",
   minWidth: 0,
   maxWidth: props.containerWidth,
-  margin: `0 auto`,
+  margin: "0 auto",
   overflowX: "hidden",
   overflowY: "auto",
 }));

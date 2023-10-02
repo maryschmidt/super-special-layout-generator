@@ -15,7 +15,6 @@ interface DeviceProps {
 
 const StyledDevice = styled("div")((props: Pick<DeviceProps, "grid">) => ({
   height: "100px",
-  //   border: "1px solid #fff",
   backgroundColor: props.grid.color,
   gridColumn: `auto / span ${props.grid.column.end}`,
 }));
