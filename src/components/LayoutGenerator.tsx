@@ -6,6 +6,7 @@ import {
   useEffect,
   ChangeEvent,
 } from "react";
+import useDimensions from "react-cool-dimensions";
 import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -20,14 +21,13 @@ import { db } from "../../firebase-config";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import { DeviceNames, batteries } from "../../devices";
-import Device from "./Device";
+// import Device from "./Device";
 import FormField from "./FormField";
-import StyledGrid from "./StyledGrid";
+// import StyledGrid from "./StyledGrid";
 import { getFtToPxConversionFactor } from "../utils/getFtToPxConversionFactor";
-
-type EleCounts<E extends string> = {
-  [s in E]: number;
-};
+import { EleCounts } from "../models/Layout";
+import { genNodesForViz } from "../utils/genNodesForViz";
+import Viz from "./Viz";
 
 const defaultEles = {
   megapackxl: 0,
@@ -39,6 +39,7 @@ const defaultEles = {
 
 const LayoutGenerator = () => {
   const [currentUser, setCurrentUser] = useState<firebase.User | null>(null);
+  const { observe, width: vizWidth, height: vizHeight } = useDimensions();
 
   useEffect(() => {
     const auth = firebase.auth();
@@ -113,20 +114,22 @@ const LayoutGenerator = () => {
     );
   }, [eles]);
 
-  const baseWidthFt = Object.values(batteries).reduce(
-    (acc: number | undefined, cur) => {
-      if (acc && acc < cur.specs.width) {
-        return acc;
-      }
-      return cur.specs.width;
-    },
-    undefined
-  );
+  // const baseWidthFt = Object.values(batteries).reduce(
+  //   (acc: number | undefined, cur) => {
+  //     if (acc && acc < cur.specs.width) {
+  //       return acc;
+  //     }
+  //     return cur.specs.width;
+  //   },
+  //   undefined
+  // );
 
   const widthPx = gridRef?.current?.scrollWidth ?? 0;
   const ftToPxConversionFactor = getFtToPxConversionFactor(widthPx);
   const widthFt = widthPx * ftToPxConversionFactor;
   const heightFt = gridRef?.current?.scrollHeight ?? 0 * ftToPxConversionFactor;
+
+  const data = genNodesForViz(eles);
 
   return (
     <>
@@ -203,7 +206,10 @@ const LayoutGenerator = () => {
               </Box>
             </CardContent>
           </Card>
-          <Box overflow="hidden" flex="3" display="flex" ref={gridRef}>
+          <Box ref={observe} flex="3">
+            <Viz data={data} width={vizWidth} height={vizHeight} />
+          </Box>
+          {/* <Box overflow="hidden" flex="3" display="flex" ref={gridRef}>
             <StyledGrid
               baseWidthFt={baseWidthFt ?? 0}
               ftToPxConversionFactor={ftToPxConversionFactor}
@@ -217,7 +223,7 @@ const LayoutGenerator = () => {
                 />
               ))}
             </StyledGrid>
-          </Box>
+          </Box> */}
         </Box>
       </Container>
     </>
