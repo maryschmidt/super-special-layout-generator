@@ -1,12 +1,11 @@
 import {
-  useRef,
   useState,
   useMemo,
   useCallback,
   useEffect,
+  useRef,
   ChangeEvent,
 } from "react";
-import useDimensions from "react-cool-dimensions";
 import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -21,10 +20,8 @@ import { db } from "../../firebase-config";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import { DeviceNames, batteries } from "../../devices";
-// import Device from "./Device";
 import FormField from "./FormField";
-// import StyledGrid from "./StyledGrid";
-import { getFtToPxConversionFactor } from "../utils/getFtToPxConversionFactor";
+import { TEN } from "../utils/getFtToPxConversionFactor";
 import { EleCounts } from "../models/Layout";
 import { genNodesForViz } from "../utils/genNodesForViz";
 import Viz from "./Viz";
@@ -39,7 +36,7 @@ const defaultEles = {
 
 const LayoutGenerator = () => {
   const [currentUser, setCurrentUser] = useState<firebase.User | null>(null);
-  const { observe, width: vizWidth, height: vizHeight } = useDimensions();
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const auth = firebase.auth();
@@ -52,7 +49,6 @@ const LayoutGenerator = () => {
   }, []);
 
   const [eles, setEles] = useState<EleCounts<DeviceNames>>(defaultEles);
-  const gridRef = useRef<HTMLDivElement>(null);
 
   // TODO move utils to their own files
   // getBatteryCount()
@@ -114,20 +110,8 @@ const LayoutGenerator = () => {
     );
   }, [eles]);
 
-  // const baseWidthFt = Object.values(batteries).reduce(
-  //   (acc: number | undefined, cur) => {
-  //     if (acc && acc < cur.specs.width) {
-  //       return acc;
-  //     }
-  //     return cur.specs.width;
-  //   },
-  //   undefined
-  // );
-
-  const widthPx = gridRef?.current?.scrollWidth ?? 0;
-  const ftToPxConversionFactor = getFtToPxConversionFactor(widthPx);
-  const widthFt = widthPx * ftToPxConversionFactor;
-  const heightFt = gridRef?.current?.scrollHeight ?? 0 * ftToPxConversionFactor;
+  const widthFt = Math.round((gridRef?.current?.scrollWidth ?? 0) / TEN);
+  const heightFt = Math.round((gridRef?.current?.scrollHeight ?? 0) / TEN);
 
   const data = genNodesForViz(eles);
 
@@ -155,8 +139,16 @@ const LayoutGenerator = () => {
           overflow: "hidden",
         }}
       >
-        <Box display="flex" flex="1" padding={2} overflow="hidden">
-          <Card sx={{ marginRight: 2, flex: 1, alignSelf: "flex-start" }}>
+        <Box
+          display="flex"
+          flex="1"
+          padding={2}
+          overflow="hidden"
+          alignItems="flex-start"
+        >
+          <Card
+            sx={{ marginRight: 2, flex: "0 0 360px", alignSelf: "flex-start" }}
+          >
             <CardContent>
               <Box
                 display="flex"
@@ -197,7 +189,9 @@ const LayoutGenerator = () => {
                 </Box>
                 <Box flex="1">
                   <Typography variant="caption">Cost</Typography>
-                  <Typography variant="body1">{`$${totalCost}`}</Typography>
+                  <Typography variant="body1">{`$${
+                    totalCost / 1000
+                  }k`}</Typography>
                 </Box>
                 <Box flex="1">
                   <Typography variant="caption">Energy</Typography>
@@ -206,24 +200,18 @@ const LayoutGenerator = () => {
               </Box>
             </CardContent>
           </Card>
-          <Box ref={observe} flex="3">
-            <Viz data={data} width={vizWidth} height={vizHeight} />
+          <Box
+            ref={gridRef}
+            flexGrow="0"
+            flexShrink="0"
+            flexBasis="fit-content"
+            maxHeight="100%"
+            width="100%"
+            style={{ overflowY: "auto", overflowX: "hidden" }}
+          >
+            <Viz data={data} />
           </Box>
-          {/* <Box overflow="hidden" flex="3" display="flex" ref={gridRef}>
-            <StyledGrid
-              baseWidthFt={baseWidthFt ?? 0}
-              ftToPxConversionFactor={ftToPxConversionFactor}
-              containerWidth={widthPx}
-            >
-              {(Object.keys(eles) as Array<DeviceNames>).map((ele) => (
-                <Device
-                  key={ele}
-                  count={eles[ele]}
-                  grid={batteries[ele].ui.grid}
-                />
-              ))}
-            </StyledGrid>
-          </Box> */}
+          <Box flex="1" />
         </Box>
       </Container>
     </>
