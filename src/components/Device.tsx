@@ -1,30 +1,31 @@
-import { Grid } from "../../devices";
 import { styled } from "@mui/system";
-import { v4 as uuidv4 } from "uuid";
+import { TEN } from "../utils/getFtToPxConversionFactor";
 
 interface DeviceProps {
   /**
-   * Number of instances of this device to render
+   * Width value from the data
    */
-  count: number;
+  widthFt: number;
   /**
-   * Grid props defining the device's UI behavior
+   * Background color of the div to render
    */
-  grid: Grid;
+  backgroundColor: string;
 }
 
-const StyledDevice = styled("div")((props: Pick<DeviceProps, "grid">) => ({
-  height: "100px",
-  backgroundColor: props.grid.color,
-  gridColumn: `auto / span ${props.grid.column.end}`,
-}));
+const StyledDevice = styled("div")(
+  ({ widthFt, backgroundColor }: DeviceProps) => ({
+    height: "100px",
+    width: `${widthFt * TEN}px`,
+    backgroundColor: backgroundColor,
+    gridColumnEnd: `span ${widthFt / TEN}`,
+  })
+);
 
 /**
  * Renders a number of devices with specified grid params
  */
-const Device = (props: DeviceProps) =>
-  [...Array(props.count)].map(() => (
-    <StyledDevice key={uuidv4()} grid={props.grid} />
-  ));
+const Device = ({ backgroundColor, widthFt }: DeviceProps) => (
+  <StyledDevice backgroundColor={backgroundColor} widthFt={widthFt} />
+);
 
 export default Device;
