@@ -186,22 +186,20 @@ const LayoutGenerator = () => {
                 totalCost={totalCost}
                 totalUsage={totalUsage}
               />
+              <div className={styles.legendContainer}>
+                {(Object.keys(eles) as Array<DeviceNames>).map((name) => (
+                  <LegendItem
+                    key={batteries[name].meta.label}
+                    backgroundColor={color(name)}
+                    name={batteries[name].meta.label}
+                    count={eles[name]}
+                  />
+                ))}
+              </div>
             </CardContent>
           </Card>
           <div className={styles.vizContainer}>
-            <div className={styles.legendContainer}>
-              {(Object.keys(eles) as Array<DeviceNames>).map((name) => (
-                <LegendItem
-                  key={batteries[name].meta.label}
-                  backgroundColor={color(name)}
-                  name={batteries[name].meta.label}
-                  count={eles[name]}
-                />
-              ))}
-            </div>
-            <div ref={gridRef}>
-              <Viz data={data} colorScale={color} />
-            </div>
+            <Viz ref={gridRef} data={data} colorScale={color} />
           </div>
           <div className={styles.flex} />
         </div>
