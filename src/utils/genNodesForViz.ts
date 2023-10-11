@@ -22,10 +22,8 @@ export const genNodesForViz = (
           value,
           id: uuidv4(),
         });
-        // child.value += value;
       });
       acc.children.push(child);
-      //   acc.value += child.value;
       return acc;
     },
     { name: "batteries", value: 0, id: uuidv4(), children: [] }
