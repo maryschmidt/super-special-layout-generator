@@ -1,0 +1,17 @@
+.item {
+  display: flex;
+  flex: 1;
+  padding: 4px;
+}
+
+.chip {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 1px;
+  margin-right: 1ch;
+}
+
+.text {
+  margin-left: 4px;
+  font-size: 1em;
+}

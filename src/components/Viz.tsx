@@ -1,21 +1,17 @@
 import { useMemo, useRef } from "react";
 import { hierarchy } from "d3-hierarchy";
-import { scaleOrdinal } from "d3-scale";
 import { HierarchicalData } from "../models/Viz";
-import { schemePaired } from "d3-scale-chromatic";
 import Grid from "./Grid";
 import Device from "./Device";
+import { ScaleOrdinal } from "d3-scale";
 
 interface VizProps {
   data: HierarchicalData;
+  colorScale: ScaleOrdinal<string, string>;
 }
 
-const Viz = ({ data }: VizProps) => {
+const Viz = ({ data, colorScale }: VizProps) => {
   const vizRef = useRef<HTMLDivElement>(null);
-  const color = scaleOrdinal(
-    data.children.map((d) => d.name),
-    schemePaired
-  );
 
   const leaves = useMemo(
     () =>
@@ -28,11 +24,10 @@ const Viz = ({ data }: VizProps) => {
   return (
     <Grid ref={vizRef}>
       {leaves.map((leaf) => {
-        console.log("AAA", leaf.data.value);
         return (
           <Device
             key={leaf.data.id}
-            backgroundColor={color(leaf.data.name)}
+            backgroundColor={colorScale(leaf.data.name)}
             widthFt={leaf.data.value}
           />
         );

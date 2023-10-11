@@ -1,5 +1,5 @@
-import { styled } from "@mui/system";
 import { TEN } from "../utils/getFtToPxConversionFactor";
+import styles from "./Device.module.css";
 
 interface DeviceProps {
   /**
@@ -12,20 +12,18 @@ interface DeviceProps {
   backgroundColor: string;
 }
 
-const StyledDevice = styled("div")(
-  ({ widthFt, backgroundColor }: DeviceProps) => ({
-    height: "100px",
-    width: `${widthFt * TEN}px`,
-    backgroundColor: backgroundColor,
-    gridColumnEnd: `span ${widthFt / TEN}`,
-  })
-);
-
 /**
  * Renders a number of devices with specified grid params
  */
 const Device = ({ backgroundColor, widthFt }: DeviceProps) => (
-  <StyledDevice backgroundColor={backgroundColor} widthFt={widthFt} />
+  <div
+    className={styles.device}
+    style={{
+      backgroundColor,
+      width: widthFt * TEN,
+      gridColumnEnd: `span ${widthFt / TEN}`,
+    }}
+  />
 );
 
 export default Device;

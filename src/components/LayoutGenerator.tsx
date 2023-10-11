@@ -1,11 +1,4 @@
-import {
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-  useRef,
-  ChangeEvent,
-} from "react";
+import { useState, useMemo, useCallback, useEffect, ChangeEvent } from "react";
 import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -21,10 +14,21 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import { DeviceNames, batteries } from "../../devices";
 import FormField from "./FormField";
-import { TEN } from "../utils/getFtToPxConversionFactor";
 import { EleCounts } from "../models/Layout";
 import { genNodesForViz } from "../utils/genNodesForViz";
 import Viz from "./Viz";
+import { getBatteryCount } from "../utils/getBatteryCount";
+import { getTransformerCount } from "../utils/getTransformerCount";
+import { Specs } from "./Specs";
+import { getScaledDimension } from "../utils/getScaledDimension";
+import LegendItem from "./LegendItem";
+import { scaleOrdinal } from "d3-scale";
+import { schemePaired } from "d3-scale-chromatic";
+
+interface LayoutDimensions {
+  width: number;
+  height: number;
+}
 
 const defaultEles = {
   megapackxl: 0,
@@ -36,7 +40,11 @@ const defaultEles = {
 
 const LayoutGenerator = () => {
   const [currentUser, setCurrentUser] = useState<firebase.User | null>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
+
+  const [layoutDimensions, setLayoutDimensions] = useState<LayoutDimensions>({
+    width: 0,
+    height: 0,
+  });
 
   useEffect(() => {
     const auth = firebase.auth();
@@ -50,9 +58,24 @@ const LayoutGenerator = () => {
 
   const [eles, setEles] = useState<EleCounts<DeviceNames>>(defaultEles);
 
-  // TODO move utils to their own files
-  // getBatteryCount()
-  // getTransformerCount()
+  const gridRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node) {
+        const totalBatteryCount = getBatteryCount(eles);
+
+        if (totalBatteryCount) {
+          setLayoutDimensions({
+            width: getScaledDimension(node.clientWidth),
+            height: getScaledDimension(node.scrollHeight),
+          });
+        } else {
+          setLayoutDimensions({ width: 0, height: 0 });
+        }
+      }
+    },
+    [eles]
+  );
+
   const handleInputChange = useCallback(
     (fieldName: DeviceNames) => (event: ChangeEvent<HTMLInputElement>) => {
       const result = parseInt(event.target.value, 10);
@@ -61,10 +84,9 @@ const LayoutGenerator = () => {
           ...prevEles,
           [fieldName]: isNaN(result) ? 0 : result,
         };
-        const nextBatteryCount = (Object.keys(nextEles) as Array<DeviceNames>)
-          .filter((k) => k !== "transformer") // We only want the batteries
-          .reduce((acc, cur) => acc + nextEles[cur], 0);
-        const nextTransformerCount = Math.ceil(nextBatteryCount / 2);
+        const nextTransformerCount = getTransformerCount(
+          getBatteryCount(nextEles)
+        );
         return {
           ...nextEles,
           transformer: nextTransformerCount,
@@ -110,10 +132,10 @@ const LayoutGenerator = () => {
     );
   }, [eles]);
 
-  const widthFt = Math.round((gridRef?.current?.scrollWidth ?? 0) / TEN);
-  const heightFt = Math.round((gridRef?.current?.scrollHeight ?? 0) / TEN);
+  const data = useMemo(() => genNodesForViz(eles), [eles]);
 
-  const data = genNodesForViz(eles);
+  const names = data.children.map((d) => d.name);
+  const color = scaleOrdinal(names, schemePaired);
 
   return (
     <>
@@ -178,30 +200,15 @@ const LayoutGenerator = () => {
                   />
                 ))}
               </Box>
-              <Box display="flex" flexWrap="wrap">
-                <Box flex="1">
-                  <Typography variant="caption">Width</Typography>
-                  <Typography variant="body1">{`${widthFt} ft`}</Typography>
-                </Box>
-                <Box flex="1">
-                  <Typography variant="caption">Height</Typography>
-                  <Typography variant="body1">{`${heightFt} ft`}</Typography>
-                </Box>
-                <Box flex="1">
-                  <Typography variant="caption">Cost</Typography>
-                  <Typography variant="body1">{`$${
-                    totalCost / 1000
-                  }k`}</Typography>
-                </Box>
-                <Box flex="1">
-                  <Typography variant="caption">Energy</Typography>
-                  <Typography variant="body1">{`${totalUsage} MWh`}</Typography>
-                </Box>
-              </Box>
+              <Specs
+                widthFt={layoutDimensions.width}
+                heightFt={layoutDimensions.height}
+                totalCost={totalCost}
+                totalUsage={totalUsage}
+              />
             </CardContent>
           </Card>
           <Box
-            ref={gridRef}
             flexGrow="0"
             flexShrink="0"
             flexBasis="fit-content"
@@ -209,7 +216,19 @@ const LayoutGenerator = () => {
             width="100%"
             style={{ overflowY: "auto", overflowX: "hidden" }}
           >
-            <Viz data={data} />
+            <Box display="flex" marginBottom={1}>
+              {(Object.keys(eles) as Array<DeviceNames>).map((name) => (
+                <LegendItem
+                  key={batteries[name].meta.label}
+                  backgroundColor={color(name)}
+                  name={batteries[name].meta.label}
+                  count={eles[name]}
+                />
+              ))}
+            </Box>
+            <Box ref={gridRef}>
+              <Viz data={data} colorScale={color} />
+            </Box>
           </Box>
           <Box flex="1" />
         </Box>
