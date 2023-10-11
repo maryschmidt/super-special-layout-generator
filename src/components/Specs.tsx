@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import styles from "./Specs.module.css";
 
 interface SpecsProps {
   widthFt: number;
@@ -14,22 +15,22 @@ export const Specs = ({
   totalCost,
   totalUsage,
 }: SpecsProps) => (
-  <Box display="flex" flexWrap="wrap">
-    <Box flex="1">
+  <div className={styles.specs}>
+    <div className={styles.flex}>
       <Typography variant="caption">Width</Typography>
       <Typography variant="body1">{`${widthFt} ft`}</Typography>
-    </Box>
-    <Box flex="1">
+    </div>
+    <div className={styles.flex}>
       <Typography variant="caption">Height</Typography>
       <Typography variant="body1">{`${heightFt} ft`}</Typography>
-    </Box>
-    <Box flex="1">
+    </div>
+    <div className={styles.flex}>
       <Typography variant="caption">Cost</Typography>
       <Typography variant="body1">{`$${totalCost / 1000}k`}</Typography>
-    </Box>
-    <Box flex="1">
+    </div>
+    <div className={styles.flex}>
       <Typography variant="caption">Energy</Typography>
       <Typography variant="body1">{`${totalUsage} MWh`}</Typography>
-    </Box>
-  </Box>
+    </div>
+  </div>
 );

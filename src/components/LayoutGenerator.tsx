@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, ChangeEvent } from "react";
 import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Container from "@mui/material/Container";
@@ -24,6 +23,7 @@ import { getScaledDimension } from "../utils/getScaledDimension";
 import LegendItem from "./LegendItem";
 import { scaleOrdinal } from "d3-scale";
 import { schemePaired } from "d3-scale-chromatic";
+import styles from "./LayoutGenerator.module.css";
 
 interface LayoutDimensions {
   width: number;
@@ -141,7 +141,7 @@ const LayoutGenerator = () => {
     <>
       <AppBar position="static">
         <Container maxWidth="xl" disableGutters>
-          <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Toolbar className={styles.toolbar}>
             <Typography variant="h6" noWrap>
               Super Special Layout Generator
             </Typography>
@@ -152,40 +152,20 @@ const LayoutGenerator = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Container
-        maxWidth="xl"
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          flex: 1,
-          overflow: "hidden",
-        }}
-      >
-        <Box
-          display="flex"
-          flex="1"
-          padding={2}
-          overflow="hidden"
-          alignItems="flex-start"
-        >
-          <Card
-            sx={{ marginRight: 2, flex: "0 0 360px", alignSelf: "flex-start" }}
-          >
+      <Container className={styles.mainContainer} maxWidth="xl">
+        <div className={styles.flexContainer}>
+          <Card className={styles.cardContainer}>
             <CardContent>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
-              >
+              <div className={styles.cardContentContainer}>
                 <Typography variant="h5" component="div">
                   Build of Materials
                 </Typography>
                 <IconButton color="primary" onClick={handleSave}>
                   <SaveIcon />
                 </IconButton>
-              </Box>
+              </div>
 
-              <Box flex="1">
+              <div className={styles.flex}>
                 {Object.values(batteries).map(({ meta, ui }) => (
                   <FormField
                     key={meta.id}
@@ -199,7 +179,7 @@ const LayoutGenerator = () => {
                     value={eles[meta.id] ?? 0}
                   />
                 ))}
-              </Box>
+              </div>
               <Specs
                 widthFt={layoutDimensions.width}
                 heightFt={layoutDimensions.height}
@@ -208,15 +188,8 @@ const LayoutGenerator = () => {
               />
             </CardContent>
           </Card>
-          <Box
-            flexGrow="0"
-            flexShrink="0"
-            flexBasis="fit-content"
-            maxHeight="100%"
-            width="100%"
-            style={{ overflowY: "auto", overflowX: "hidden" }}
-          >
-            <Box display="flex" marginBottom={1}>
+          <div className={styles.vizContainer}>
+            <div className={styles.legendContainer}>
               {(Object.keys(eles) as Array<DeviceNames>).map((name) => (
                 <LegendItem
                   key={batteries[name].meta.label}
@@ -225,13 +198,13 @@ const LayoutGenerator = () => {
                   count={eles[name]}
                 />
               ))}
-            </Box>
-            <Box ref={gridRef}>
+            </div>
+            <div ref={gridRef}>
               <Viz data={data} colorScale={color} />
-            </Box>
-          </Box>
-          <Box flex="1" />
-        </Box>
+            </div>
+          </div>
+          <div className={styles.flex} />
+        </div>
       </Container>
     </>
   );

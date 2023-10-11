@@ -1,0 +1,8 @@
+.specs {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex {
+  flex: 1;
+}
