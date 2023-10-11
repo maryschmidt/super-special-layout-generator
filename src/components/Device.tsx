@@ -23,6 +23,7 @@ const Device = ({ backgroundColor, widthFt }: DeviceProps) => (
       width: widthFt * TEN,
       gridColumnEnd: `span ${widthFt / TEN}`,
     }}
+    data-cy="device"
   />
 );
 

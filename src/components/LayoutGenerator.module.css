@@ -1,0 +1,50 @@
+.toolbar {
+  justify-content: space-between;
+}
+
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.flexContainer {
+  display: flex;
+  flex: 1;
+  padding: 16px;
+  overflow: hidden;
+  align-items: flex-start;
+  max-height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.cardContainer {
+  margin-right: 16px;
+  flex: 0 0 360px;
+  align-self: flex-start;
+}
+
+.cardContentContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vizContainer {
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: fit-content;
+}
+
+.legendContainer {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 16px 0 0;
+}
+
+.flex {
+  flex: 1;
+}
