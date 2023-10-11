@@ -24,6 +24,7 @@
     "react-cool-dimensions": "^3.0.1",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.15.0",
+    "typed-css-modules": "^0.7.2",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
